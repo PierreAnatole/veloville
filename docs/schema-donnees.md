@@ -53,6 +53,7 @@ trajet = (<ins>`trajet_id`</ins> VARCHAR(12), `velo_id` VARCHAR(8), `depart_horo
 > `type_usager` : Type d'usager. abonne ou occasionnel.  
 > `usager_ref` : Pseudonyme de l'abonné. RG5 : le pseudonyme est une version hachée et tronquée du numéro d'abonné. De ce format : texte, U + 8 caractères hexadécimaux, ou vide. RG5 : le champ est toujours vide pour un usager occasionnel.  
   
+###### Règles de gestion concernées :  
 > RG2 : Un trajet relie deux stations du référentiel : la station de départ est obligatoire et doit exister ; la station d'arrivée, lorsqu'elle est renseignée, doit exister.  
   
 La règle est enforcée par une contrainte de clé étrangère sur la colonne `station_depart` et `station_arrivee` : `FOREIGN KEY(station_depart) REFERENCES station(station_id)`, `FOREIGN KEY(station_arrivee) REFERENCES station(station_id)`. La station de depart obligatoire est enforcée par une contrainte `NOT NULL` sur la colonne `station_depart`.  
@@ -76,3 +77,9 @@ utilisateur = (<ins>`id_utilisateur`</ins> SERIAL, `username` VARCHAR(50), `mot_
 > `username` : le nom de l'utilisateur, il doit être unique.  
 > `mot_de_passe_hash` : le mot de passe hashé de l'utilisateur (Hachages bcrypt (\$2b\$, 12 tours) générés avec le paquet Python bcrypt).  
 > `role` : le rôle de l'utilisateur. Il doit correspondre à `exploitant` ou `direction`.  
+
+# Audit des données  
+#### Table station  
+Toutes les données sont conformes  
+  
+#### Table incident  
