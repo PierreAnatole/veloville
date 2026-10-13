@@ -8,18 +8,18 @@ CREATE TABLE station(
 	nom VARCHAR(100) NOT NULL,
 	commune VARCHAR(50) NOT NULL,
 	capacite INTEGER NOT NULL CHECK (capacite>0),
-	latitutude NUMERIC(8,5) NOT NULL,
+	latitude NUMERIC(8,5) NOT NULL,
 	longitude NUMERIC(8,5) NOT NULL,
 	date_mise_en_service DATE NOT NULL
 );
 
 CREATE TABLE trajet(
-	trajet_id VARCHAR(12) PRIMARY KEY,
+	trajet_id VARCHAR(10) PRIMARY KEY,
 	velo_id VARCHAR(8) NOT NULL,
 	depart_horodatage TIMESTAMP NOT NULL,
 	duree_secondes INTEGER NOT NULL CHECK (duree_secondes>0),
 	type_usager VARCHAR(15) NOT NULL CHECK (type_usager in ('abonne', 'occasionnel')),
-	usager_ref CHAR(9),
+	usager_ref CHAR(9) CHECK ((type_usager='abonne' AND usager_ref IS NOT NULL) OR (type_usager='occasionnel' AND usager_ref IS NULL)),
 	station_depart CHAR(4) NOT NULL,
 	station_arrivee CHAR(4),
 	FOREIGN KEY(station_depart) REFERENCES station(station_id),
@@ -33,7 +33,7 @@ CREATE TABLE incident(
 	velo_id CHAR(5),
 	type_incident VARCHAR(30) NOT NULL,
 	statut VARCHAR(10) NOT NULL CHECK (statut in ('ouvert', 'en_cours', 'resolu')),
-	date_resolution TIMESTAMP,
+	date_resolution TIMESTAMP CHECK ((date_resolution IS NULL AND statut!='resolu') OR (date_resolution IS NOT NULL AND statut='resolu') AND date_resolution>date_signalement),
 	technicien VARCHAR(50),
 	station_id CHAR(4),
 	CONSTRAINT velo_XOR_station CHECK (
