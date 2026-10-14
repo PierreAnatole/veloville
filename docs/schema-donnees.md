@@ -13,7 +13,7 @@ station = (<ins>`station_id`</ins> VARCHAR(10), `nom` VARCHAR(100), `commune` VA
 ###### Règles de gestion concernées :  
 > RG1 : Une station est identifiée de façon unique par station_id. Sa capacité est un entier strictement positif.  
   
-La règle est enforcée par une contrainte de clé primaire sur station_id et par un une contrainte SQL :`CHECK (capacite>0)`
+La règle est enforcée par une contrainte de clé primaire sur station_id et par un une contrainte SQL :`CHECK (capacite>0)`. Le service de fiabilisation retire et journalise les valeurs incorrectes provenant du CSV avec `df_incorrect=df[df["capacite"]<=0]`.
   
 #### Table incident  
 incident = (<ins>`incident_id`</ins> VARCHAR(12), `date_signalement` TIMESTAMP, `cible` VARCHAR(10), `velo_id` CHAR(5), `type_incident` VARCHAR(30), `statut` VARCHAR(10), `date_resolution` TIMESTAMP, `technicien` VARCHAR(50), `#station_id`);  
@@ -31,11 +31,11 @@ incident = (<ins>`incident_id`</ins> VARCHAR(12), `date_signalement` TIMESTAMP, 
 ###### Règles de gestion concernées :
 > RG6 : Un incident vise soit un vélo, soit une station, jamais les deux ni aucun : cible détermine laquelle des deux références est renseignée. Une station visée doit exister dans le référentiel.  
   
-La règle est enforcée par deux contraintes SQL, l'une au niveau de `cible` : `CHECK (cible in ('velo', 'station'))` et l'autre au niveau de la table (OU exclusif sur les champs `id_station` et `id_velo` forçant l'un des deux scénarios) : `CONSTRAINT velo_XOR_station CHECK ((cible='velo' AND velo_id IS NOT NULL AND station_id IS NULL) OR (cible='station' AND station_id IS NOT NULL AND velo_id IS NULL))`. La règle pour la station visée est enforcée par une contrainte de clé étrangère sur la colonne `station_id` : `FOREIGN KEY(station_id) REFERENCES station(station_id)`  
+La règle est enforcée par deux contraintes SQL, l'une au niveau de `cible` : `CHECK (cible in ('velo', 'station'))` et l'autre au niveau de la table (OU exclusif sur les champs `id_station` et `id_velo` forçant l'un des deux scénarios) : `CONSTRAINT velo_XOR_station`. La règle pour la station visée est enforcée par une contrainte de clé étrangère sur la colonne `station_id` : `FOREIGN KEY(station_id) REFERENCES station(station_id)`. Le service de fiabilisation retire et journalise les valeurs incorrectes provenant du CSV avec  la fonction `incident_cible_velo_ou_station` et verifie que la station existe avec `incident_station_id_invalide`  
    
 > RG7 : Un incident est dans l'un des trois statuts ouvert, en_cours, resolu. Les transitions autorisées sont ouvert -> en_cours, ouvert -> resolu et en_cours -> resolu. Un incident résolu n'évolue plus.  
   
-La règle est enforcée par une contrainte SQL sur `statut` : `CHECK (statut in ('ouvert', 'en_cours', 'resolu'))`. La contrainte sur les états de transition est enforcée dans le routeur `incidents.py`  
+La règle est enforcée par une contrainte SQL sur `statut` : `CHECK (statut in ('ouvert', 'en_cours', 'resolu'))`. La fonction `incident_statut_casse_incorrecte` du service de fiabilisation transforme les statut `ouvert`, `en cours`, `en_cours` et `resolu` (sans se soucier de la casse) en une des trois valeurs correcte.  La contrainte sur les états de transition est enforcée dans le routeur `incidents.py`  
   
 > RG8 : La date de résolution est renseignée si et seulement si l'incident est résolu, et elle est postérieure ou égale à la date de signalement. Le nom du technicien est attendu dès la prise en charge ; son absence est signalée mais n'empêche pas l'enregistrement.  
   
@@ -45,7 +45,7 @@ La règle est enforcée par une contrainte SQL sur le champ `date_resolution` : 
 trajet = (<ins>`trajet_id`</ins> VARCHAR(12), `velo_id` VARCHAR(8), `depart_horodatage` TIMESTAMP, `duree_secondes` INTEGER, `type_usager` VARCHAR(15), `usager_ref` CHAR(9), `#station_depart`, `#station_arrivee`); 
 
 > `trajet_id`	: id de la table, de ce format : T + 6 chiffres (ex. T480001).  
-> `velo_id` : id du vélo emprubté, de ce format : V + 4 chiffres (ex. V1167).  
+> `velo_id` : id du vélo emprunté, de ce format : V + 4 chiffres (ex. V1167).  
 > `depart_horodatage` : Date et heure de retrait du vélo, format AAAA-MM-JJ HH:MM:SS.  
 > `station_depart` : Station de retrait, référence station_id. RG2 : la station de départ est obligatoire. RG2 : la station de départ doit correspondre à un id_station dans la table station.  
 > `station_arrivee` : Station de restitution, référence station_id. RG2, RG3 : peut être vide. RG2 : lorsque la station est renseignée elle doit correspondre à un id_station dans la table station.  
@@ -56,15 +56,15 @@ trajet = (<ins>`trajet_id`</ins> VARCHAR(12), `velo_id` VARCHAR(8), `depart_horo
 ###### Règles de gestion concernées :  
 > RG2 : Un trajet relie deux stations du référentiel : la station de départ est obligatoire et doit exister ; la station d'arrivée, lorsqu'elle est renseignée, doit exister.  
   
-La règle est enforcée par une contrainte de clé étrangère sur la colonne `station_depart` et `station_arrivee` : `FOREIGN KEY(station_depart) REFERENCES station(station_id)`, `FOREIGN KEY(station_arrivee) REFERENCES station(station_id)`. La station de depart obligatoire est enforcée par une contrainte `NOT NULL` sur la colonne `station_depart`.  
+La règle est enforcée par une contrainte de clé étrangère sur la colonne `station_depart` et `station_arrivee` : `FOREIGN KEY(station_depart) REFERENCES station(station_id)`, `FOREIGN KEY(station_arrivee) REFERENCES station(station_id)`. La station de depart obligatoire est enforcée par une contrainte `NOT NULL` sur la colonne `station_depart`.Le service de fiabilisation vérifie que l'id de la station de départ et d'arrivée existe dans la table `station` avec `trajet_station_depart_invalide` et `trajet_station_arrivee_invalide`  
    
 > RG3 : La station d'arrivée d'un trajet peut être inconnue (vélo non restitué au moment de l'export). Le trajet est conservé ; il ne compte pas comme arrivée pour aucune station.  
   
-La règle est representée par l'absence en SQL de la contrainte `NOT NULL` sur la colonne `station_arrivee`.  
+La règle est respectée par l'absence en SQL de la contrainte `NOT NULL` sur la colonne `station_arrivee`.  
   
 > RG4 : La durée d'un trajet est un entier strictement positif, exprimé en secondes.  
   
-La règle est enforcée par une contrainte SQL sur la colonne `duree_secondes` : `CHECK (duree_secondes>0)`.  
+La règle est enforcée par une contrainte SQL sur la colonne `duree_secondes` : `CHECK (duree_secondes>0)`. Le service de fiabilisation retire les valeurs incorrectes provenant du csv avec la fonction `trajet_duree_sup_zero`, ligne `filtre=df["duree_secondes"]<=0`.    
   
 > RG5 : Un trajet d'abonné porte un pseudonyme d'usager (usager_ref) ; un trajet d'usager occasionnel n'en porte pas. Aucune donnée directement identifiante n'est conservée.  
   

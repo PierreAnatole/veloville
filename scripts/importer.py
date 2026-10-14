@@ -1,68 +1,62 @@
-"""Import et fiabilisation des trois exports CSV dans PostgreSQL.
-
-À compléter : lire data/stations.csv, data/trajets.csv et data/incidents.csv,
-appliquer les règles de fiabilisation (api/services/fiabilisation.py),
-charger les lignes valides, journaliser les rejets et les avertissements.
-Le script doit être idempotent : deux exécutions successives laissent la
-base dans le même état.
-
-Usage prévu : python scripts/importer.py [--dossier data]
-"""
 import os
-import pandas as pd
+import sys
+sys.path.append('../veloville')
+from api.services.fiabilisation import *
 
 dirname = os.path.dirname(__file__)
 
-PATH_STATION_DATA=f"{dirname}/../data/stations.csv"
-PATH_TRAJET_DATA=f"{dirname}/../data/trajets.csv"
-PATH_INCIDENT_DATA=f"{dirname}/../data/incidents.csv"
+STATION_FILENAME="stations.csv"
+TRAJET_FILENAME="trajets.csv"
+INCIDENT_FILENAME="incidents.csv"
 
-SHORT_PATH_STATION_DATA="stations.csv"
-SHORT_PATH_TRAJET_DATA="trajets.csv"
-SHORT_PATH_INCIDENT_DATA="incidents.csv"
+PATH_STATION_DATA=f"{dirname}/../data/{STATION_FILENAME}"
+PATH_TRAJET_DATA=f"{dirname}/../data/{TRAJET_FILENAME}"
+PATH_INCIDENT_DATA=f"{dirname}/../data/{INCIDENT_FILENAME}"
 
 PATH_WARNING_REJECT_LOG=f"{dirname}/../docs/journal_rejets.csv"
-
-class LogEntry():
-    def __init__(self, fichier_source, identifiant, colonne, valeur, motif, decision) : 
-        self.fichier_source=fichier_source
-        self.identifiant=identifiant
-        self.colonne=colonne
-        self.valeur=valeur
-        self.motif=motif
-        self.decision=decision
-
-def doublon(df, fichier):
-    df_doublons=df[df.duplicated()]
-    
-    for index, row in df_doublons.iterrows():
-        entry=LogEntry(
-            fichier_source=fichier,
-            identifiant=index,
-            colonne="toutes",
-            valeur=df_doublons.loc[index], # TODO
-            motif="doublon",
-            decision="rejet"
-        )
-        print(entry.valeur)
 
 def main() -> None:
     df_station=pd.read_csv(f"{PATH_STATION_DATA}")
     df_trajet=pd.read_csv(f"{PATH_TRAJET_DATA}")
     df_incident=pd.read_csv(f"{PATH_INCIDENT_DATA}")
+    station_filtre=df_station.copy()
+    trajet_filtre=df_trajet.copy()
+    incident_filtre=df_incident.copy()
 
-    doublon(df_station, SHORT_PATH_STATION_DATA)
-    doublon(df_trajet, SHORT_PATH_TRAJET_DATA)
-    doublon(df_incident, SHORT_PATH_INCIDENT_DATA)
+    reject_logs=[]
 
-    df_reject_log=pd.DataFrame([{"fichier source" : "", "identifiant" : "", "colonne" : "", "valeur" : "", "motif" : "", "décision" : ""}])
-    reject_log=[
-        {"fichier_source" : "1"},
-        {"fichier_source" : "2"}
-    ]
-    df_reject_log=pd.DataFrame(reject_log)
+    # retire et log les doublons
+    station_filtre=doublon(station_filtre, reject_logs, STATION_FILENAME, "station_id")
+    trajet_filtre=doublon(trajet_filtre, reject_logs, TRAJET_FILENAME, "trajet_id")
+    incident_filtre=doublon(incident_filtre, reject_logs, INCIDENT_FILENAME, "incident_id")
+
+    # Station
+    station_filtre=station_capacite_sup_zero(station_filtre, reject_logs)
+
+    # incident
+    incident_filtre=incident_technicien_manquant(incident_filtre, reject_logs)
+    incident_filtre=incident_statut_casse_incorrecte(incident_filtre, reject_logs)
+    incident_filtre=incident_cible_velo_ou_station(incident_filtre, reject_logs)
+    incident_filtre=incident_date_resolution_avant_date_signalement(incident_filtre, reject_logs)
+    incident_filtre=incident_station_id_invalide(incident_filtre, reject_logs, station_filtre)
+
+    # trajet
+    trajet_filtre=trajet_duree_sup_zero(trajet_filtre, reject_logs)
+    trajet_filtre=trajet_station_depart_invalide(trajet_filtre, reject_logs, station_filtre)
+    trajet_filtre=trajet_station_arrivee_invalide(trajet_filtre, reject_logs, station_filtre)
+
+    df_reject_log=pd.DataFrame([vars(log) for log in reject_logs])
+
+    # affichage pour vérifier le nombre de total de lignes traitées
+    initial=len(df_station)+len(df_incident)+len(df_trajet)
+    restante=len(station_filtre)+len(incident_filtre)+len(trajet_filtre)
+    supprimee=len(df_reject_log[df_reject_log["decision"]=="rejet"])
+    print(f"""lignes initiales : {initial}
+lignes supprimees : {supprimee}
+lignes restantes : {restante}
+lignes supprimees+restantes : {supprimee+restante}""")
+    
     df_reject_log.to_csv(PATH_WARNING_REJECT_LOG)
-
 
 if __name__ == "__main__":
     main()
