@@ -37,3 +37,8 @@ Format recommandé : une section par version, les changements regroupés en
 ### Ajouté
 - ajout d'une règle de fiabilisation pour la colonne `depart_horodatage` de la table `trajet`.
 - export des trois tables en format csv dans la base de donnée.
+
+## [0.1.6] - 2026-10-14
+### Ajouté
+- Ajout de la section audit dans le schema de données.
+- ajout des trois indicateurs

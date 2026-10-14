@@ -83,3 +83,12 @@ utilisateur = (<ins>`id_utilisateur`</ins> SERIAL, `username` VARCHAR(50), `mot_
 Toutes les données sont conformes  
   
 #### Table incident  
+La colonne `technicien` est normalement remplie des la prise en charge de l'incident mais ce n'est pas le cas. Les lignes qui n'ont pas de technicien assignée sont quand même gardées, en adéquation avec RG8.  
+La colonne `statut` n'est pas homogène, la casse n'est pas en minuscule comme précisé dans RG7. Les `statut` qui n'ont pas la bonne casse sont normalisées.  
+Certaines `date_resolution` sont antérieures à la `date_signalement`, ces lignes sont supprimées en adéquation avec RG8.  
+  
+#### Table trajet  
+La table `trajet` contient des doublons, ces doublons sont supprimés, en ne gardant qu'une seule occurence (le premier enregistrement de la table).  
+La colonne `depart_horodatage` contient quelques lignes ou la date est en format JJ/MM/AAAA au lieu du format AAAA-MM-JJ. Ces dates sont converties dans le bon format, en adéquation avec le dictionnaire des données.
+La colonne `duree_secondes` possède quelques valeurs nulles ou négatives. Ces lignes sont supprimées en adéquation avec RG4.
+La colonne `station_arrivee` possède des id de station qui ne correspondent à aucune `station_id` dans la table station. Ces colonnes sont supprimées en adéquation avec RG2.
