@@ -26,3 +26,14 @@ Format recommandé : une section par version, les changements regroupés en
 ## [0.1.3] - 2026-10-13
 ### Ajouté
 - demarrage importer.py
+
+## [0.1.4] - 2026-10-14
+### Ajouté
+- ajout des fonctions de fiabilisation des données dans api/services/fiabilisation.py
+- ajout du script importer.py pour utiliser les fonctions de fiabilisation.py sur toutes les données. Commit juste avant d'envoyer les données en base de donnée.
+- ajout des fonctions de fiabilisation des données utilisées dans le script d'import dans schema-donnees.md
+
+## [0.1.5] - 2026-10-14
+### Ajouté
+- ajout d'une règle de fiabilisation pour la colonne `depart_horodatage` de la table `trajet`.
+- export des trois tables en format csv dans la base de donnée.

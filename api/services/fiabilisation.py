@@ -157,6 +157,26 @@ def incident_station_id_invalide(df, logs, stations):
 
 
 # trajet
+def trajet_depart_format_date(df, logs) :
+    filtre=df["depart_horodatage"].str.contains("/")
+    df_incorrect=df[filtre]
+
+    for index, row in df_incorrect.iterrows():
+        entry=LogEntry(
+            fichier_source="trajets.csv",
+            identifiant=row["trajet_id"],
+            colonne="depart_horodatage",
+            valeur=row['depart_horodatage'],
+            motif="la date est du format JJ/MM/AAAA au lieu du format AAAA-MM-JJ",
+            decision="normalisation"
+        )
+        logs.append(entry)
+
+    wrong_format=pd.to_datetime(df["depart_horodatage"], format="mixed").dt.strftime('%d/%m/%Y')
+    right_format=pd.to_datetime(wrong_format, format="mixed").dt.strftime('%Y-%m-%d')
+    df["depart_horodatage"]=right_format
+    return df
+
 def trajet_duree_sup_zero(df, logs) :
     filtre=df["duree_secondes"]<=0
     df_incorrect=df[filtre]
