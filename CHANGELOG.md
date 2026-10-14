@@ -42,3 +42,9 @@ Format recommandé : une section par version, les changements regroupés en
 ### Ajouté
 - Ajout de la section audit dans le schema de données.
 - ajout des trois indicateurs
+
+## [0.1.7] - 2026-10-14
+### Ajouté
+- ajout du fichier database
+- ajout des 4 modeles
+- ajout du schema users
