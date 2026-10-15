@@ -62,3 +62,13 @@ Format recommandé : une section par version, les changements regroupés en
 ### Ajouté
 - ajout des 4 routeurs incidents.py, indicateurs.py, stations.py et trajets.py
 - declaration de ces routeurs dans le main
+
+## [1.1.0] - 2026-10-15
+### Ajouté
+- ajout de la procedure de déploiement  
+- ajout d'un script de generation de jwt secret  
+- ajout de la partie sécurité de l'application :  
+    - ajout des configurations manquantes dans config.py
+    - ajout des fichiers security.py et depencencies.py qui gerent tous les deux les fonctions de sécurité et gestion de role de l'application
+    - ajout de la route POST auth/login
+    - sécurisation de la route PUT /incidents/{incident_id}/statut

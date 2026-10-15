@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 from api.database import get_db
 from api.models.incidents import Incident
 from api.schemas.incidents import IncidentOut, IncidentPutStatut
+from api.models.users import User
+from api.securite.dependencies import require_roles
 
 router = APIRouter(
     prefix="/incidents",
@@ -12,7 +14,7 @@ router = APIRouter(
 )
 
 @router.put("/{incident_id}/statut", response_model=IncidentOut)
-def update_incident_statut(incident_id, new_statut : IncidentPutStatut, db: Session = Depends(get_db)) :
+def update_incident_statut(incident_id, new_statut : IncidentPutStatut, db: Session = Depends(get_db), current_user: User = Depends(require_roles("direction"))) :
     """Change le statut d'un incident.
     cet endpoint est privé, seul le rôle exploitant y à accès.
     """

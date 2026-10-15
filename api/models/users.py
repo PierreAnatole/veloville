@@ -5,9 +5,9 @@ from api.database import Base
 
 class User(Base):
     """Utilisateur de l'API avec un rôle d'autorisation."""
-    __tablename__ = "users"
+    __tablename__ = "utilisateur"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id_utilisateur: Mapped[int] = mapped_column(primary_key=True)
 
     # Identifiant utilisé lors du login.
     username: Mapped[str] = mapped_column(
@@ -17,7 +17,7 @@ class User(Base):
     )
 
     # Seul le hash bcrypt est stocké.
-    password_hash: Mapped[str] = mapped_column(String(100))
+    mot_de_passe_hash: Mapped[str] = mapped_column(String(100))
 
     # Le rôle détermine les actions autorisées.
     role: Mapped[str] = mapped_column(
