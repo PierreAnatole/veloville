@@ -102,3 +102,12 @@ Format recommandé : une section par version, les changements regroupés en
 ## [1.2.1] - 2026-10-15  
 ### Ajouté  
 - ajout des tests unitaires de fiabilisation
+
+## [1.2.2] - 2026-10-15  
+### Ajouté  
+- ajout des tests d'integration
+
+## [1.2.3] - 2026-10-15  
+### Ajouté  
+- ajout du test unitaire testant les doublons
+- ajout du readme, présentant l'application, la procédure de test et justifiant les choix écoresponsables.

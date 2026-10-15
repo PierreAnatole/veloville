@@ -8,12 +8,31 @@ import sys
 sys.path.append('../veloville')
 from api.services.fiabilisation import *
 
+def test_doublon():
+    # Arrange
+    df_initial=pd.DataFrame([
+        {"station_id" : "S001", "nom" : "Lille - Gare", "commune" : "Lille", "capacite" : "50", "latitude" : "50.00", "longitude" : "50.00", "date_mise_en_service" : "2022-01-01"},
+        {"station_id" : "S001", "nom" : "Lille - Gare", "commune" : "Lille", "capacite" : "50", "latitude" : "50.00", "longitude" : "50.00", "date_mise_en_service" : "2022-01-01"}
+    ])
+    logs=[]
+
+    # Act
+    df_filtre=doublon(df_initial, logs, "fichier.csv", "station_id")
+    motif=logs[0].motif
+    decision=logs[0].decision
+
+    # Assert
+    assert motif == "doublon"
+    assert decision == "rejet"
+    assert len(df_initial) == 2
+    assert len(df_filtre) == 1
+    assert len(logs) == 1
 
 def test_station_capacite_sup_zero():
     # Arrange
     df_initial=pd.DataFrame([
         {"station_id" : "S001", "capacite" : 5},
-        {"station_id" : "S003", "capacite" : -5}
+        {"station_id" : "S002", "capacite" : -5}
     ])
     logs=[]
 
@@ -28,6 +47,7 @@ def test_station_capacite_sup_zero():
     assert len(df_initial) == 2
     assert len(df_filtre) == 1
     assert len(logs) == 1
+
 
 def test_incident_technicien_manquant():
     # Arrange
