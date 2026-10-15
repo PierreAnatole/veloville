@@ -39,7 +39,7 @@ La règle est enforcée par une contrainte SQL sur `statut` : `CHECK (statut in 
   
 > RG8 : La date de résolution est renseignée si et seulement si l'incident est résolu, et elle est postérieure ou égale à la date de signalement. Le nom du technicien est attendu dès la prise en charge ; son absence est signalée mais n'empêche pas l'enregistrement.  
   
-La règle est enforcée par une contrainte SQL sur le champ `date_resolution` : `CHECK ((date_resolution IS NULL AND statut!='resolu') OR (date_resolution IS NOT NULL AND statut='resolu') AND date_resolution>date_signalement)`  
+La règle est enforcée par une contrainte SQL sur le champ `date_resolution` : `CHECK (((date_resolution IS NULL) OR (date_resolution IS NOT NULL AND statut='resolu')) AND date_resolution>date_signalement)`  
   
 #### Table trajet  
 trajet = (<ins>`trajet_id`</ins> VARCHAR(12), `velo_id` VARCHAR(8), `depart_horodatage` TIMESTAMP, `duree_secondes` INTEGER, `type_usager` VARCHAR(15), `usager_ref` CHAR(9), `#station_depart`, `#station_arrivee`); 

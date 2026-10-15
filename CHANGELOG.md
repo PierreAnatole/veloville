@@ -48,3 +48,12 @@ Format recommandé : une section par version, les changements regroupés en
 - ajout du fichier database
 - ajout des 4 modeles
 - ajout du schema users
+
+## [0.1.8] - 2026-10-15
+### Ajouté
+- ajout et complétion des schema incidents.py et trajets.py
+- ajout de la pagination pour ces schemas
+
+### Modifié  
+- securite/indicateurs.py, renommage des colonnes conformement au sujet
+- modification d'une contrainte check dans schema.sql

@@ -33,7 +33,7 @@ CREATE TABLE incident(
 	velo_id CHAR(5),
 	type_incident VARCHAR(30) NOT NULL,
 	statut VARCHAR(10) NOT NULL CHECK (statut in ('ouvert', 'en_cours', 'resolu')),
-	date_resolution TIMESTAMP CHECK ((date_resolution IS NULL AND statut!='resolu') OR (date_resolution IS NOT NULL AND statut='resolu') AND date_resolution>date_signalement),
+	date_resolution TIMESTAMP CHECK (((date_resolution IS NULL) OR (date_resolution IS NOT NULL AND statut='resolu')) AND date_resolution>date_signalement),
 	technicien VARCHAR(50),
 	station_id CHAR(4),
 	CONSTRAINT velo_XOR_station CHECK (

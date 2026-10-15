@@ -1,22 +1,24 @@
 from pydantic import BaseModel, Field, ConfigDict
 from datetime import date
+from decimal import Decimal
 
 class StationOut(BaseModel):
+    """Schema Pydantic representant une station"""
     model_config = ConfigDict(from_attributes=True)
 
     station_id : str = Field(max_length=4)
     nom : str = Field(max_length=100)
     commune : str = Field(max_length=50)
     capacite : int = Field(gt=0)
-    latitude : float
-    longitude : float
+    latitude : Decimal = Field(max_digits=8, decimal_places=5) 
+    longitude : Decimal = Field(max_digits=8, decimal_places=5) 
     date_mise_en_service : date
 
-# TODO
-    # station_id CHAR(4) PRIMARY KEY,
-	# nom VARCHAR(100) NOT NULL,
-	# commune VARCHAR(50) NOT NULL,
-	# capacite INTEGER NOT NULL CHECK (capacite>0),
-	# latitude NUMERIC(8,5) NOT NULL,
-	# longitude NUMERIC(8,5) NOT NULL,
-	# date_mise_en_service DATE NOT NULL
+class PaginatedStationResponse(BaseModel):
+    """Structure d'une réponse paginée contenant des stations"""
+    resultats: list[StationOut]
+
+    page: int
+    taille_page: int
+    total: int
+    pages: int

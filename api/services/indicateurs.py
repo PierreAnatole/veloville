@@ -29,29 +29,32 @@ def activite_par_jour(date_debut = "", date_fin = "") :
     df_activite=(
         df_activite.groupby([df_activite['depart_horodatage'].dt.date])["trajet_id"].count()
         .reset_index()
-        .rename(columns={"trajet_id" : "nombre_trajet"})
-        .sort_values("nombre_trajet")
+        .rename(columns={"depart_horodatage" : "jour", "trajet_id" : "nb_trajets"})
+        .sort_values("jour")
     )
     return df_activite
-
 # Indicateur 2 : les limite stations ayant le plus de mouvements (nb_departs + nb_arrivees)
 # ordre décroissant puis station_id croissant ; une arrivée inconnue ne compte pour aucune station.
 def stations_actives(limite=10) :
     df_trajet=pd.read_sql_table("trajet", con=engine)
+    df_station=pd.read_sql_table("station", con=engine)
+
+    df_station_c=pd.read_sql_table("station", con=engine)
     df_depart=df_trajet.copy()
     df_arrivee=df_trajet.copy()
 
-    df_depart=df_depart.groupby("station_depart")["trajet_id"].count().reset_index().rename(columns={"station_depart" : "id", "trajet_id" : "nombre_trajet"})
-    df_arrivee=df_arrivee.groupby("station_arrivee")["trajet_id"].count().reset_index().rename(columns={"station_arrivee" : "id", "trajet_id" : "nombre_trajet"})
+    df_depart=df_depart.groupby("station_depart")["trajet_id"].count().reset_index().rename(columns={"station_depart" : "station_id", "trajet_id" : "nb_trajets"})
+    df_arrivee=df_arrivee.groupby("station_arrivee")["trajet_id"].count().reset_index().rename(columns={"station_arrivee" : "station_id", "trajet_id" : "nb_trajets"})
 
     df_union=pd.concat([df_depart, df_arrivee])
     df_union=(
-        df_union.groupby("id")["nombre_trajet"].sum()
+        df_union.groupby("station_id")["nb_trajets"].sum()
         .reset_index()
-        .sort_values("nombre_trajet", ascending=False)
+        .sort_values(['nb_trajets', 'station_id'], ascending=[False, True])
         .head(limite)
     )
-    return df_union
+    df_union=pd.merge(df_union, df_station_c, on='station_id')
+    return df_union[["station_id", "nom", "nb_trajets"]]
 
 # Indicateur 3 : nombre d'incidents par statut (un élément par statut présent en base) et délai moyen
 # de résolution en heures, calculé sur les incidents resolu dont date_resolution est renseignée, arrondi à une décimale ; null si aucun incident résolu.
@@ -59,14 +62,14 @@ def incidents_par_statut():
     df_incident=pd.read_sql_table("incident", con=engine)
     df_incident_statut=df_incident.copy()
 
-    df_incident_statut['delai_resolution'] = (df_incident_statut['date_resolution'] - df_incident_statut['date_signalement']).dt.components['hours']
+    df_incident_statut['delai_moyen_resolution_heures'] = (df_incident_statut['date_resolution'] - df_incident_statut['date_signalement']).dt.components['hours']
 
     df_incident_statut=(
         df_incident_statut.groupby(['statut']).agg({
             'incident_id': 'count',
-            'delai_resolution': np.nanmean
+            'delai_moyen_resolution_heures': np.nanmean
         })
         .reset_index()
-        .rename(columns={"incident_id" : "nombre_incident"})
+        .rename(columns={"incident_id" : "nb_incidents"})
     )
     return df_incident_statut
