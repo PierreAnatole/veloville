@@ -8,6 +8,7 @@ import api_client
 import commun
 from api.services.front_service import get_communes
 
+st.title("Stations")
 if "page_stations" not in st.session_state:
     st.session_state["page_stations"] = 1
 
@@ -21,7 +22,7 @@ if commun.est_connecte():
         commun.deconnecter()
         st.rerun()
 
-@st.cache_data(ttl="30s")
+@st.cache_data(ttl="1h")
 def get_communes_from_service():
     return(get_communes())
 
@@ -36,7 +37,7 @@ try:
 except api_client.ErreurApi as erreur:
     st.error(erreur.message)
 else:
-    st.dataframe(stations["resultats"], use_container_width=True)
+    st.dataframe(stations["resultats"], width='stretch')
     st.caption(f"Page {stations['page']} / {stations['pages']} — {stations['total']} éléments")
 
     precedent, suivant = st.columns(2)

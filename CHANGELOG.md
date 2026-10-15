@@ -94,3 +94,7 @@ Format recommandé : une section par version, les changements regroupés en
 ## [1.1.4] - 2026-10-15  
 ### Ajouté  
 - ajout de la page 2_incidents.py en front
+
+## [1.2.0] - 2026-10-15  
+### Ajouté  
+- ajout de la page 3_indicateurs.py au front, partie front terminée

@@ -131,3 +131,7 @@ def obtenir(
         path,
         params=params,
     )
+
+def modifier_statut(id, payload : dict):
+    response=requests.post(f"{_api_url()}/incidents/{id}/statut", json=payload)
+    return response.json
