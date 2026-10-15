@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 import math
+from typing import Literal
 
 from api.database import get_db
 from api.models.incidents import Incident
@@ -15,8 +16,8 @@ router = APIRouter(
 )
 
 @router.get("", response_model=PaginatedIncidentResponse)
-def liste_stations(
-    statut: str = None,
+def liste_incidents(
+    statut: Literal["Tous", "ouvert", "en_cours", "resolu"] = "Tous",
     page: int = Query(default=1, ge=1),
     taille_page: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db)
@@ -26,7 +27,7 @@ def liste_stations(
     """
     query=select(Incident)
 
-    if statut :
+    if statut!="Tous" :
         query=query.where(Incident.statut==statut)
         
     total = len(db.scalars(query).all())

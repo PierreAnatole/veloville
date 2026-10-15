@@ -90,3 +90,7 @@ Format recommandé : une section par version, les changements regroupés en
 
 ### Modifié
 - changement du type des attributs de type datetime.date en format datetime.datetime
+
+## [1.1.4] - 2026-10-15  
+### Ajouté  
+- ajout de la page 2_incidents.py en front
