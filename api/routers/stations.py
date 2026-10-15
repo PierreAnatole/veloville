@@ -14,6 +14,7 @@ router = APIRouter(
 
 @router.get("", response_model=PaginatedStationResponse)
 def liste_stations(
+    commune: str = "Toutes",
     page: int = Query(default=1, ge=1),
     taille_page: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db)
@@ -21,14 +22,17 @@ def liste_stations(
     """Retourne une page de stations.
     cet endpoint est public.
     """
-    total = db.scalar(
-        select(func.count()).select_from(Station)
-    ) or 0
+    query=select(Station)
 
+    if commune!="Toutes":
+        query=query.where(Station.commune==commune)
+        
+    total = len(db.scalars(query).all())
+    
     offset = (page - 1) * taille_page
 
     stations = db.scalars(
-        select(Station)
+        query
         .order_by(Station.station_id)
         .offset(offset)
         .limit(taille_page)

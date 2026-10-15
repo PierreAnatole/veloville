@@ -72,3 +72,14 @@ Format recommandé : une section par version, les changements regroupés en
     - ajout des fichiers security.py et depencencies.py qui gerent tous les deux les fonctions de sécurité et gestion de role de l'application
     - ajout de la route POST auth/login
     - sécurisation de la route PUT /incidents/{incident_id}/statut
+
+## [1.1.2] - 2026-10-15
+### Ajouté
+- ajout de la page d'accueil en front app.py
+- ajout de api_client.py permettane de centraliser les appels API
+- ajout de front/commun.py pour permettre de gerer la connexion des utilisateurs et des roles
+- ajout de la premiere page 1_Stations.py
+- ajout de services/front/service pour isoler la logique metier de streamlit
+
+### Modifié  
+- routers/stations.py pour permettre de filtrer les communes
