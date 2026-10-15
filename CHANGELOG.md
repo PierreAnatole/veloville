@@ -83,3 +83,10 @@ Format recommandé : une section par version, les changements regroupés en
 
 ### Modifié  
 - routers/stations.py pour permettre de filtrer les communes
+
+## [1.1.3] - 2026-10-15  
+### Ajouté  
+- ajout de la route GET /incidents dans routers/incidents.py
+
+### Modifié
+- changement du type des attributs de type datetime.date en format datetime.datetime

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, ConfigDict
-from datetime import date
+from datetime import datetime
 from typing import Literal, Optional
 
 class TrajetOut(BaseModel):
@@ -8,7 +8,7 @@ class TrajetOut(BaseModel):
 
     trajet_id : str = Field(max_length=10)
     velo_id : str = Field(max_length=8)
-    depart_horodatage : date
+    depart_horodatage : datetime
     duree_secondes : int = Field(gt=0)
     type_usager : Literal["abonne", "occasionnel"]
     usager_ref : Optional[str] = Field(max_length=9)

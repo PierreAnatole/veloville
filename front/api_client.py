@@ -93,7 +93,7 @@ def appeler(
     # que les pages Streamlit savent afficher simplement.
     messages = {
         401: "Identifiant ou mot de passe incorrect",
-        403: "Votre rôle ne permet pas cet accès.",
+        403: "Vous n'avez pas le droit de modifier un incident",
         404: "Ressource introuvable.",
         422: "Paramètres invalides.",
     }

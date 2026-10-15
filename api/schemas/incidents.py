@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, ConfigDict
-from datetime import datetime, date
+from datetime import datetime
 from typing import Literal, Optional
 
 class IncidentOut(BaseModel):
@@ -12,7 +12,7 @@ class IncidentOut(BaseModel):
     velo_id : Optional[str] = Field(max_length=5)
     type_incident : str = Field(max_length=30)
     statut : Literal["ouvert", "en_cours", "resolu"]
-    date_resolution : Optional[date]
+    date_resolution : Optional[datetime]
     technicien : Optional[str] = Field(max_length=50)
     station_id : Optional[str] = Field(max_length=4)
 
