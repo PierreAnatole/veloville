@@ -98,3 +98,7 @@ Format recommandé : une section par version, les changements regroupés en
 ## [1.2.0] - 2026-10-15  
 ### Ajouté  
 - ajout de la page 3_indicateurs.py au front, partie front terminée
+
+## [1.2.1] - 2026-10-15  
+### Ajouté  
+- ajout des tests unitaires de fiabilisation
