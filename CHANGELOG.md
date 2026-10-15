@@ -57,3 +57,8 @@ Format recommandé : une section par version, les changements regroupés en
 ### Modifié  
 - securite/indicateurs.py, renommage des colonnes conformement au sujet
 - modification d'une contrainte check dans schema.sql
+
+## [1.0.0] - 2026-10-15
+### Ajouté
+- ajout des 4 routeurs incidents.py, indicateurs.py, stations.py et trajets.py
+- declaration de ces routeurs dans le main
